@@ -29,9 +29,9 @@ A Flask-based web application for viewing, searching, and managing customer serv
 example_table_application/
 ├── app.py                  # Main Flask application
 ├── api_handlers.py         # Request handlers and utilities
-├── config.py               # Configuration (credentials, URLs)
 ├── profanity_filter.py     # Content validation and filtering
 ├── requirements.txt        # Python dependencies
+├── .env.example            # Environment variables template
 ├── templates/
 │   └── index.html          # Main HTML template
 ├── static/
@@ -78,15 +78,21 @@ example_table_application/
    pip install -r requirements.txt
    ```
 
-5. **Configure credentials**:
-   - Edit `config.py` with your ArcGIS credentials and feature service URLs:
-     ```python
-     _un = "your_arcgis_username"
-     _pw = "your_arcgis_password"
-     data_query_url1 = "https://your-arcgis-service.com/..."
-     data_query_url2 = "https://your-arcgis-service.com/..."
-     data_add_url1 = "https://your-arcgis-service.com/..."
+5. **Set up environment variables**:
+   - Copy `.env.example` to `.env`:
+     ```bash
+     cp .env.example .env
      ```
+   - Edit `.env` with your ArcGIS credentials:
+     ```bash
+     CLIENT_ID=your_arcgis_client_id
+     CLIENT_SECRET=your_arcgis_client_secret
+     DATA_QUERY_URL1=https://your-arcgis-service.com/0/query
+     DATA_QUERY_URL2=https://your-arcgis-service.com/1/query
+     DATA_ADD_URL1=https://your-arcgis-service.com/1/addFeatures
+     FLASK_ENV=development
+     ```
+   - **Important**: Never commit `.env` to version control. It's already in `.gitignore`.
 
 6. **Run the application**:
    ```bash
@@ -95,6 +101,103 @@ example_table_application/
 
 7. **Open in browser**:
    - Navigate to `http://localhost:5000`
+
+## Create Your AGOL Services
+
+This section explains how to set up the ArcGIS Online (AGOL) Feature Services required by this application.
+
+### Data Structure
+
+The application expects two Feature Services with the following schema:
+
+#### Feature Service 0 (Primary Query - DATA_QUERY_URL1)
+Used to display the main data table with all customer service line records.
+
+**Required Fields**:
+| Field Name | Type | Description |
+|-----------|------|-------------|
+| `PTR` | String | Account/Service Number (displayed in table) |
+| `ServiceAddress` | String | Customer service address (displayed in table) |
+| `GlobalID` | String/GUID | Unique identifier for each record |
+| `coory` | Double | Latitude coordinate for map display |
+| `coorx` | Double | Longitude coordinate for map display |
+
+**Sample Query Response**:
+```json
+{
+  "features": [
+    {
+      "attributes": {
+        "PTR": "ACC123456",
+        "ServiceAddress": "123 Main Street, City, State 12345",
+        "GlobalID": "{12345678-1234-1234-1234-123456789012}",
+        "coory": 40.7128,
+        "coorx": -74.0060
+      }
+    }
+  ]
+}
+```
+
+#### Feature Service 1 (Detail Query & Updates - DATA_QUERY_URL2 and DATA_ADD_URL1)
+Used to fetch detailed asset information and submit updates.
+
+**Required Fields**:
+| Field Name | Type | Description |
+|-----------|------|-------------|
+| `meterGlobal` | String/GUID | Reference to PTR record GlobalID |
+| `LOCDESC` | String | Location description (max 100 chars) |
+| `AssetID` | Integer | Asset identifier number |
+| `MXUNumber` | Integer | Antenna/MXU number |
+| `customerSL` | String | Service line material (Plastic, Copper, Non-Lead, etc.) |
+
+**Sample Query Response**:
+```json
+{
+  "features": [
+    {
+      "attributes": {
+        "LOCDESC": "Under driveway on east side",
+        "AssetID": 1001,
+        "MXUNumber": 5,
+        "customerSL": "Plastic",
+        "meterGlobal": "{12345678-1234-1234-1234-123456789012}"
+      }
+    }
+  ]
+}
+```
+
+### Setup Instructions
+
+1. **Create Feature Services in AGOL**:
+   - Log into your ArcGIS Online organization
+   - Create a new Feature Service with two layers (Service 0 and Service 1)
+   - Add the required fields above to each layer
+
+2. **Configure Permissions**:
+   - Enable "Query" capability for reading data
+   - Enable "Create, Update, Delete" capabilities for Service 1 to allow submissions
+   - Set up appropriate sharing settings
+
+3. **Obtain Service URLs**:
+   - For DATA_QUERY_URL1: `https://services{X}.arcgis.com/{organization_id}/arcgis/rest/services/{service_name}/FeatureServer/0/query`
+   - For DATA_QUERY_URL2: `https://services{X}.arcgis.com/{organization_id}/arcgis/rest/services/{service_name}/FeatureServer/1/query`
+   - For DATA_ADD_URL1: `https://services{X}.arcgis.com/{organization_id}/arcgis/rest/services/{service_name}/FeatureServer/1/addFeatures`
+
+4. **Set up OAuth2 Authentication**:
+   - Register a new application in your AGOL organization
+   - Create OAuth2 credentials (Client ID and Client Secret)
+   - Ensure the application has appropriate permissions to query and edit features
+
+5. **Add credentials to `.env` file**:
+   ```bash
+   CLIENT_ID=your_oauth_client_id
+   CLIENT_SECRET=your_oauth_client_secret
+   DATA_QUERY_URL1=https://services7.arcgis.com/your_org_id/arcgis/rest/services/YourService/FeatureServer/0/query
+   DATA_QUERY_URL2=https://services7.arcgis.com/your_org_id/arcgis/rest/services/YourService/FeatureServer/1/query
+   DATA_ADD_URL1=https://services7.arcgis.com/your_org_id/arcgis/rest/services/YourService/FeatureServer/1/addFeatures
+   ```
 
 ## Usage
 
@@ -223,11 +326,33 @@ Submits updated service line information.
 
 ## Configuration
 
-### `config.py`
-Contains all configuration variables:
-- ArcGIS credentials (`_un`, `_pw`)
-- Feature service query URLs (`data_query_url1`, `data_query_url2`)
-- Feature service add URL (`data_add_url1`)
+### Environment Variables
+
+Configuration is managed through environment variables. Create a `.env` file in the project root (copy from `.env.example`):
+
+```bash
+# ArcGIS OAuth2 Credentials
+CLIENT_ID=your_client_id_here
+CLIENT_SECRET=your_client_secret_here
+
+# ArcGIS Feature Service URLs
+DATA_QUERY_URL1=https://services7.arcgis.com/your_service_id/...
+DATA_QUERY_URL2=https://services7.arcgis.com/your_service_id/...
+DATA_ADD_URL1=https://services7.arcgis.com/your_service_id/...
+
+# Flask Environment
+FLASK_ENV=development
+```
+
+**Required Variables**:
+- `CLIENT_ID`: ArcGIS OAuth2 Client ID
+- `CLIENT_SECRET`: ArcGIS OAuth2 Client Secret
+- `DATA_QUERY_URL1`: Feature service URL for initial data query
+- `DATA_QUERY_URL2`: Feature service URL for single record queries
+- `DATA_ADD_URL1`: Feature service URL for adding/updating features
+- `FLASK_ENV`: Set to `development` for debug mode or `production` for production
+
+**Security Note**: The `.env` file is excluded from version control via `.gitignore`. Never commit credentials.
 
 ### `profanity_filter.py`
 Defines profanity patterns and filtering logic. To add more filtered terms:
@@ -236,7 +361,7 @@ Defines profanity patterns and filtering logic. To add more filtered terms:
 
 ### `api_handlers.py`
 Contains all business logic:
-- Token generation
+- Token generation using OAuth2
 - Data fetching and transformation
 - Input validation
 - Feature submission
@@ -261,11 +386,13 @@ Contains all business logic:
 - Verify Python 3.8+ is installed: `python --version`
 - Check all dependencies are installed: `pip install -r requirements.txt`
 - Ensure no other application is using port 5000
+- Verify all required environment variables are set in `.env` file
 
 ### Can't connect to ArcGIS services
-- Verify credentials in `config.py` are correct
+- Verify environment variables in `.env` are correct
 - Check internet connection
 - Ensure feature service URLs are valid and accessible
+- Verify `CLIENT_ID` and `CLIENT_SECRET` are valid ArcGIS OAuth2 credentials
 - Verify ArcGIS account has proper permissions
 
 ### Search not working
@@ -286,19 +413,20 @@ Contains all business logic:
 
 ## Security Considerations
 
-- ArcGIS credentials are stored server-side in `config.py`
-- Never commit `config.py` with credentials to version control
-- Use environment variables for sensitive data in production
-- All user input is validated and sanitized
-- Profanity filter prevents inappropriate content submission
+- **Credentials Management**: All sensitive credentials are stored in `.env` file, which is excluded from version control
+- **Never commit `.env`**: The file is listed in `.gitignore` to prevent accidental credential exposure
+- **Environment Variables**: Use environment variable configuration for both development and production
+- **Input Validation**: All user input is validated and sanitized on the server
+- **Profanity Filter**: Comprehensive filtering prevents inappropriate content submission
+- **HTTPS in Production**: Always use HTTPS when deploying to production
 
 ## Development
 
 ### Running in Debug Mode
 The application runs in debug mode by default. For production:
-1. Set `app.run(debug=False)` in `app.py`
-2. Use a production WSGI server (Gunicorn, uWSGI)
-3. Set environment variables for configuration
+1. Use a production WSGI server (Gunicorn, uWSGI)
+2. Set environment variables for configuration
+3. Set `FLASK_ENV=production`
 
 ### Adding New Fields
 To add new fields to submissions:

@@ -1,12 +1,32 @@
 """
 API request handlers and utilities for the Customer Service Line Viewer application.
 """
+import os
 import requests
 import re
 import json
 from flask import jsonify, request
-from config import CLIENT_ID, CLIENT_SECRET, data_query_url1, data_query_url2, data_add_url1
 from profanity_filter import contains_profanity
+
+# Load environment variables
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+DATA_QUERY_URL1 = os.getenv('DATA_QUERY_URL1')
+DATA_QUERY_URL2 = os.getenv('DATA_QUERY_URL2')
+DATA_ADD_URL1 = os.getenv('DATA_ADD_URL1')
+
+# Validate that all required environment variables are set
+required_env_vars = {
+    'CLIENT_ID': CLIENT_ID,
+    'CLIENT_SECRET': CLIENT_SECRET,
+    'DATA_QUERY_URL1': DATA_QUERY_URL1,
+    'DATA_QUERY_URL2': DATA_QUERY_URL2,
+    'DATA_ADD_URL1': DATA_ADD_URL1
+}
+
+for var_name, var_value in required_env_vars.items():
+    if not var_value:
+        raise ValueError(f"Missing required environment variable: {var_name}")
 
 
 def generate_token():
@@ -33,7 +53,6 @@ def get_feature_service_data(token):
     if not token:
         return None
     
-    feature_url = data_query_url1
     params = {
         "where": "1=1",
         "outFields": "PTR,ServiceAddress,GlobalID,coory,coorx",
@@ -42,7 +61,7 @@ def get_feature_service_data(token):
         "f": "json"
     }
 
-    response = requests.get(feature_url, params=params)
+    response = requests.get(DATA_QUERY_URL1, params=params)
     if response.status_code == 200:
         return response.json()
     return None
@@ -129,7 +148,7 @@ def get_record_handler():
         "f": "json"
     }
 
-    response = requests.get(data_query_url2, params=params)
+    response = requests.get(DATA_QUERY_URL2, params=params)
     if response.status_code != 200:
         return jsonify({"error": "Failed to query feature service"}), 500
 
@@ -203,7 +222,7 @@ def post_record_handler():
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
-        response = requests.post(data_add_url1, data=params, headers=headers)
+        response = requests.post(DATA_ADD_URL1, data=params, headers=headers)
         
         if response.status_code != 200:
             return jsonify({"error": "Failed to add feature", "details": "Server returned status " + str(response.status_code)}), 500
