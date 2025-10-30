@@ -5,26 +5,26 @@ import requests
 import re
 import json
 from flask import jsonify, request
-from config import _un, _pw, data_query_url1, data_query_url2, data_add_url1
+from config import CLIENT_ID, CLIENT_SECRET, data_query_url1, data_query_url2, data_add_url1
 from profanity_filter import contains_profanity
 
 
 def generate_token():
     """Generate an ArcGIS token for API authentication."""
-    token_url = "https://arcgis.com/sharing/rest/generateToken"
+    token_url = "https://arcgis.com/sharing/rest/oauth2/token"
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
     }
     data = {
-        "username": _un,
-        "password": _pw,
-        "referer": "https://arcgis.com",
-        "f": "json"
+        "grant_type" : "client_credentials",
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "f ": "json"
     }
 
     response = requests.post(token_url, headers=headers, data=data)
     if response.status_code == 200:
-        return response.json().get("token")
+        return response.json().get("access_token")
     return None
 
 
