@@ -2,6 +2,8 @@
 
 A Flask-based web application for viewing, searching, and managing customer service line information with interactive maps and detailed asset data.
 
+> **[Try the live demo →](https://example-table-application.onrender.com/)**
+
 ## Features
 
 - **Data Table with Search**: Browse customer accounts with real-time search by Account Number or Service Address
