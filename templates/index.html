@@ -3,17 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Table Application</title>
+    <title>Customer Service Line Viewer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Leaflet for map pin in modal -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
+    <div id="splash-modal" class="splash-modal">
+        <div class="splash-overlay"></div>
+        <div class="splash-content">
+            <button id="splashClose" class="splash-close">×</button>
+            <h2>Welcome to Customer Service Line Viewer</h2>
+            <p><strong>How to use this application:</strong></p>
+            <ul style="text-align: left; margin: 0.5rem 0 1rem 1.5rem; line-height: 1.8;">
+                <li><strong>Search:</strong> Use the dropdown to select either "Account Number" or "Service Address", then type your search term. The table updates automatically as you type. Partial matches work - for example, searching "123" will find "12345" and "91234".</li>
+                <li><strong>View Details:</strong> Double-click any row to open a detailed view showing asset information and a map of the location.</li>
+                <li><strong>Update Info:</strong> If the service line material is unknown or marked for replacement, click the "Update Info" button to submit corrected data.</li>
+            </ul>
+            <div style="margin-top:12px;">
+                <label><input type="checkbox" id="dontShowSplash"> Don't show this again</label>
+            </div>
+            <div class="splash-actions" style="margin-top:16px; text-align:right;">
+                <button id="splashOk" class="btn-submit">Got it</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>Data Table</h1>
+        <h1>Customer Service Line Viewer</h1>
         <div class="search-container">
             <select id="searchField" class="search-select">
-                <option value="ptr">PTR</option>
+                <option value="ptr">Account Number</option>
                 <option value="address">Service Address</option>
-                <option value="lastAMR">Last AMR</option>
             </select>
             <input type="text" id="amrSearch" placeholder="Search...">
         </div>
@@ -26,9 +47,9 @@
                 <table id="data-table">
                     <thead>
                         <tr>
-                            <th>PTR</th>
+                            <th>Account Number</th>
                             <th>Service Address</th>
-                            <th>Last AMR</th>
+                            <!-- Last AMR removed from table (hidden) -->
                             <th>Latitude</th>
                             <th>Longitude</th>
                         </tr>
@@ -45,6 +66,82 @@
             </div>
         </div>
     </div>
+    <!-- Record modal (hidden by default) -->
+    <div id="record-modal" class="modal hidden">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <button id="modalClose" class="modal-close">×</button>
+            <button id="updateButton" class="update-button" style="display: none;">Update Info</button>
+            <h3 id="modal-title" class="modal-title">Record Details</h3>
+            <!-- Update form overlay -->
+            <div id="updateFormOverlay" class="update-form-overlay">
+                <div class="update-form">
+                    <!-- Loading Overlay -->
+                    <div class="form-loading-overlay" id="formLoadingOverlay">
+                        <div class="form-loading-content">
+                            <div class="form-spinner"></div>
+                            <div>Submitting update...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Success Message -->
+                    <div class="form-success" id="formSuccess">
+                        <div class="success-checkmark"></div>
+                        <div class="success-message">Thank You!</div>
+                        <div class="success-details">The service line information has been successfully updated.</div>
+                        <button type="button" class="btn-submit" id="successDone">Done</button>
+                    </div>
+
+                    <!-- Form Content -->
+                    <div id="formContent">
+                        <h3>Update Service Line Information</h3>
+                        <form id="serviceLineForm">
+                            <div class="form-group">
+                                <label for="assetId">Asset Number</label>
+                                <input type="text" id="assetId" name="assetId" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mxuNumber">Antenna Number</label>
+                                <input type="text" id="mxuNumber" name="mxuNumber">
+                            </div>
+                            <div class="form-group">
+                                <label for="customerSL">Service Line Material</label>
+                                <select id="customerSL" name="customerSL" required>
+                                    <option value="">Select Material</option>
+                                    <option value="Plastic">Plastic</option>
+                                    <option value="Copper">Copper</option>
+                                    <option value="Non-Lead">Non-Lead</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="locDesc">Location Description</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="locDesc" name="locDesc" maxlength="100">
+                                    <div class="char-counter"><span id="charCount">0</span>/100</div>
+                                </div>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="button" class="btn-cancel" id="cancelUpdate">Cancel</button>
+                                <button type="submit" class="btn-submit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-left">
+                    <div id="record-attributes" class="attributes-list">
+                        <!-- Attributes key/value pairs will be injected here -->
+                    </div>
+                </div>
+                <div class="modal-right">
+                    <div id="modal-map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
