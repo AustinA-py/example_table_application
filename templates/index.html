@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Table Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Data Table</h1>
+        <div class="search-container">
+            <select id="searchField" class="search-select">
+                <option value="ptr">PTR</option>
+                <option value="address">Service Address</option>
+                <option value="lastAMR">Last AMR</option>
+            </select>
+            <input type="text" id="amrSearch" placeholder="Search...">
+        </div>
+        <div class="table-wrapper">
+            <div class="table-container">
+                <div id="loading-spinner" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Loading data...</div>
+                </div>
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>PTR</th>
+                            <th>Service Address</th>
+                            <th>Last AMR</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button id="prevPage" class="page-btn">Previous</button>
+                <span id="pageInfo">Page 1</span>
+                <button id="nextPage" class="page-btn">Next</button>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+/* Modern color scheme and variables */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --background-color: #f5f6fa;
+    --text-color: #2c3e50;
+    --border-color: #dcdde1;
+    --hover-color: #f1f2f6;
+    --button-hover: #34495e;
+}
+
+/* Base styles */
+html, body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    width: 95%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1vh 2.5%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+}
+
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin: 1vh 0;
+    font-size: 2.5vh;
+}
+
+/* Search styles */
+.search-container {
+    margin: 1vh 0;
+    padding: 0 0.5vw;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1vw;
+}
+
+.search-select {
+    padding: 1vh 1vw;
+    font-size: 1.6vh;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.search-select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+#amrSearch {
+    width: 25%;
+    padding: 1vh 1vw;
+    font-size: 1.6vh;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+}
+
+#amrSearch:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+/* Table styles */
+.table-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: calc(90vh - 60px);
+    position: relative;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    flex: 1;
+    position: relative;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 1vh 1vw;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.8vh;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Column widths */
+th:nth-child(1), td:nth-child(1) { width: 15%; } /* PTR */
+th:nth-child(2), td:nth-child(2) { width: 35%; } /* Service Address */
+th:nth-child(3), td:nth-child(3) { width: 20%; } /* Last AMR */
+th:nth-child(4), td:nth-child(4) { width: 15%; } /* Latitude */
+th:nth-child(5), td:nth-child(5) { width: 15%; } /* Longitude */
+
+tr:hover {
+    background-color: var(--hover-color);
+    transition: background-color 0.2s ease;
+}
+
+/* Pagination styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1vh;
+    background: white;
+    border-radius: 0 0 8px 8px;
+    border-top: 1px solid var(--border-color);
+    height: 5vh;
+}
+
+.page-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8vh 1.5vw;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 1vw;
+    transition: background-color 0.2s ease;
+    font-size: 1.6vh;
+}
+
+.page-btn:hover {
+    background-color: var(--button-hover);
+}
+
+.page-btn:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    margin: 0 1rem;
+    font-weight: 500;
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--background-color);
+    border-top: 5px solid var(--secondary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1vh auto;
+}
+
+.loading-text {
+    color: var(--primary-color);
+    font-size: 1.8vh;
+    font-weight: 500;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Show loading state */
+.table-container.loading .loading-spinner {
+    display: block;
+}
+
+.table-container.loading table {
+    opacity: 0.3;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    th, td {
+        padding: 0.5rem;
+    }
+}
