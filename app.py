@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify
 import requests
-from config import ARCGIS_USERNAME, ARCGIS_PASSWORD
+from config import ARCGIS_USERNAME, ARCGIS_PASSWORD, DATA_QUERY_URL
+
 
 app = Flask(__name__)
 
@@ -25,7 +26,7 @@ def get_feature_service_data(token):
     if not token:
         return None
     
-    feature_url = "https://services.arcgis.com/dzhPRiWP0DwuzONX/arcgis/rest/services/Meter_Overhaul24/FeatureServer/0/query"
+    feature_url = DATA_QUERY_URL
     params = {
         "where": "1=1",
         "outFields": "PTR,ServiceAddress,lastAMR,coory,coorx",
