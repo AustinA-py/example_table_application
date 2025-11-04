@@ -333,6 +333,9 @@ tr:hover {
     overflow: hidden;
 }
 .modal-close { 
+    position: absolute;
+    top: 12px;
+    right: 12px;
     background: transparent; 
     border: none; 
     font-size: 2rem; 
@@ -340,6 +343,7 @@ tr:hover {
     color: var(--primary-color);
     padding: 0;
     line-height: 1;
+    z-index: 10;
 }
 
 .update-button { 
@@ -581,19 +585,19 @@ tr:hover {
     
     .modal-title {
         font-size: 1.1rem;
-        order: 1;
         flex-basis: 100%;
+        padding-right: 3rem; /* Make room for absolutely positioned close button */
     }
     
     .update-button {
         font-size: 0.8rem;
         padding: 6px 12px;
-        order: 2;
     }
     
     .modal-close {
-        order: 3;
         font-size: 1.5rem;
+        top: 8px;
+        right: 8px;
     }
     
     .tab-btn {
