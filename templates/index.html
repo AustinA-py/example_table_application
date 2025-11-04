@@ -71,9 +71,17 @@
     <div id="record-modal" class="modal hidden">
         <div class="modal-overlay" id="modalOverlay"></div>
         <div class="modal-content">
-            <button id="modalClose" class="modal-close">×</button>
-            <button id="updateButton" class="update-button" style="display: none;">Update Info</button>
-            <h3 id="modal-title" class="modal-title">Record Details</h3>
+            <div class="modal-header">
+                <button id="modalClose" class="modal-close">×</button>
+                <h3 id="modal-title" class="modal-title">Record Details</h3>
+                <button id="updateButton" class="update-button" style="display: none;">Update Info</button>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" data-tab="record-info">Record Info</button>
+                <button class="tab-btn" data-tab="map-view">Map View</button>
+            </div>
             <!-- Update form overlay -->
             <div id="updateFormOverlay" class="update-form-overlay">
                 <div class="update-form">
@@ -129,13 +137,15 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-body">
-                <div class="modal-left">
+            
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <div id="record-info" class="tab-pane active">
                     <div id="record-attributes" class="attributes-list">
                         <!-- Attributes key/value pairs will be injected here -->
                     </div>
                 </div>
-                <div class="modal-right">
+                <div id="map-view" class="tab-pane">
                     <div id="modal-map"></div>
                 </div>
             </div>
