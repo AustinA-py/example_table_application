@@ -323,6 +323,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        // Reset tabs to default (Record Info tab)
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+        
+        // Activate first tab (Record Info)
+        const firstTabBtn = document.querySelector('.tab-btn[data-tab="record-info"]');
+        const firstTabPane = document.getElementById('record-info');
+        if (firstTabBtn) firstTabBtn.classList.add('active');
+        if (firstTabPane) firstTabPane.classList.add('active');
+
         // Show modal
         modal.classList.remove('hidden');
 
@@ -621,6 +634,39 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show the splash (if not opted out) then fetch data
     showSplashIfNeeded();
     fetchData();
+
+    // Tab switching functionality
+    function initializeTabs() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and panes
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding pane
+                button.classList.add('active');
+                const targetPane = document.getElementById(targetTab);
+                if (targetPane) {
+                    targetPane.classList.add('active');
+                    
+                    // If switching to map view, refresh the map
+                    if (targetTab === 'map-view' && modalMap) {
+                        setTimeout(() => {
+                            modalMap.invalidateSize();
+                        }, 100);
+                    }
+                }
+            });
+        });
+    }
+
+    // Initialize tabs when DOM is ready
+    initializeTabs();
 
     // Splash event handlers
     const splashOk = document.getElementById('splashOk');
